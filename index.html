@@ -17,27 +17,21 @@
         body {
             /* 완벽한 다크 모드 유지 */
             background-color: #121212;
-            display: grid;
-            place-items: center;
+            display: flex; /* grid에서 flex로 변경하여 모바일 스크롤 정렬 문제 해결 */
+            justify-content: center;
+            align-items: center;
             min-height: 100vh;
             font-family: 'Noto Sans KR', sans-serif;
             overflow-x: hidden;
-            overflow-y: hidden;
+            overflow-y: hidden; /* 데스크톱 기본 스크롤 방지 */
         }
 
-        /* 뷰포트 비율에 맞춘 화면 스케일링 */
-        @media (max-width: 1300px) {
+        /* 뷰포트 비율에 맞춘 화면 스케일링 (데스크톱/태블릿) */
+        @media (max-width: 1300px) and (min-width: 769px) {
             body {
                 transform: scale(calc(100vw / 1300));
                 transform-origin: top center;
                 min-height: calc(100vh / (100vw / 1300));
-            }
-        }
-
-        @media (max-width: 768px) {
-            body {
-                transform: scale(calc(100vw / 1300));
-                transform-origin: top center;
             }
         }
 
@@ -66,6 +60,7 @@
             justify-content: space-between; 
             height: 50px; 
             flex-shrink: 0;
+            z-index: 10;
         }
 
         .header-title {
@@ -155,16 +150,82 @@
         }
 
         /* 인터랙티브 호버 효과 (세련되고 우아한 무빙) */
-        .link-btn:hover {
-            /* 세련된 반전 효과: 어두운 배경과 부드러운 텍스트 색상 */
-            background-color: #260401; /* 다크 버건디 블랙 배경으로 반전 */
-            color: #D9CDBF; /* 밝고 따뜻한 베이지 텍스트 */
-            font-weight: 600;
-            /* 위로 살짝 떠오르며(Lift) 아주 미세하게 커지는 고급스러운 플로팅 무빙 */
-            transform: translateY(-2.5px) scale(1.03); 
-            /* 은은하고 넓게 퍼지는 고급스러운 입체 그림자 */
-            box-shadow: 0 8px 20px rgba(38, 4, 1, 0.35);
-            z-index: 2; 
+        /* 모바일에서는 호버가 탭으로 작동하므로 유지 */
+        @media (hover: hover) {
+            .link-btn:hover {
+                /* 세련된 반전 효과: 어두운 배경과 부드러운 텍스트 색상 */
+                background-color: #260401; /* 다크 버건디 블랙 배경으로 반전 */
+                color: #D9CDBF; /* 밝고 따뜻한 베이지 텍스트 */
+                font-weight: 600;
+                /* 위로 살짝 떠오르며(Lift) 아주 미세하게 커지는 고급스러운 플로팅 무빙 */
+                transform: translateY(-2.5px) scale(1.03); 
+                /* 은은하고 넓게 퍼지는 고급스러운 입체 그림자 */
+                box-shadow: 0 8px 20px rgba(38, 4, 1, 0.35);
+                z-index: 2; 
+            }
+        }
+
+        /* ========================================================
+           ★ 모바일 전용 환경 (버튼 자동 배치 & 색상 오류 완벽 해결)
+           ======================================================== */
+        @media (max-width: 768px) {
+            body {
+                align-items: flex-start; /* 상단부터 채우기 */
+                overflow-y: auto; /* 모바일에서는 자유로운 스크롤 허용 */
+                /* 테이블(그리드) 색상과 body 색상이 일치하지 않아 끊겨보이는 문제 해결 */
+                background-color: #D9CDBF; 
+            }
+
+            .slide-container {
+                width: 100%;
+                height: auto; 
+                max-height: none; /* 모바일에서는 1페이지 제한 해제 */
+                border-radius: 0;
+                box-shadow: none;
+                background-color: transparent; 
+                overflow: visible;
+            }
+
+            .header-bar {
+                padding: 0 20px;
+                position: sticky; /* 스크롤해도 헤더는 상단에 고정되게 */
+                top: 0; 
+                box-shadow: 0 4px 10px rgba(0,0,0,0.3); /* 모바일 고정 시 그림자 추가 */
+            }
+
+            .header-greek {
+                font-size: 18px; /* 모바일 환경에 맞춰 글꼴 사이즈 최적화 */
+            }
+
+            .bookmark-grid {
+                flex-direction: column; /* 세로 1열(Column)로 모바일 자동 배치 */
+                height: auto;
+                margin: 0; 
+                padding: 25px 20px;
+                border-radius: 0;
+                box-shadow: none;
+                background-color: transparent; 
+            }
+
+            .column {
+                width: 100%; /* 모바일에서는 가로를 꽉 채우도록 수정 */
+                gap: 25px; /* 카테고리 간의 여백을 넉넉하게 */
+                margin-bottom: 25px;
+            }
+            
+            /* 마지막 column의 불필요한 하단 여백 제거 */
+            .column:last-child {
+                margin-bottom: 0;
+            }
+
+            .links-wrapper {
+                gap: 10px 8px; /* 버튼 사이의 간격을 넓혀 터치 오작동 방지 */
+            }
+
+            .link-btn {
+                padding: 10px 16px; /* 터치하기 쉽도록 상하좌우 패딩(크기) 증가 */
+                font-size: 15px; 
+            }
         }
     </style>
 </head>
