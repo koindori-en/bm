@@ -1,389 +1,342 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html>
+<!DOCTYPE html>
+<html lang="ko">
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <meta http-equiv="Content-Style-Type" content="text/css">
-  <title></title>
-  <meta name="Generator" content="Cocoa HTML Writer">
-  <meta name="CocoaVersion" content="2685.4">
-  <style type="text/css">
-    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; -webkit-text-stroke: #000000}
-    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; -webkit-text-stroke: #000000; min-height: 14.0px}
-    span.s1 {font-kerning: none}
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IK BOOKMARK</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            /* 완벽한 다크 모드 유지 */
+            background-color: #121212;
+            display: grid;
+            place-items: center;
+            min-height: 100vh;
+            font-family: 'Noto Sans KR', sans-serif;
+            overflow-x: hidden;
+            overflow-y: hidden;
+        }
+
+        /* 뷰포트 비율에 맞춘 화면 스케일링 */
+        @media (max-width: 1300px) {
+            body {
+                transform: scale(calc(100vw / 1300));
+                transform-origin: top center;
+                min-height: calc(100vh / (100vw / 1300));
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                transform: scale(calc(100vw / 1300));
+                transform-origin: top center;
+            }
+        }
+
+        /* 메인 슬라이드 캔버스 (다크 모드 베이스) */
+        .slide-container {
+            width: 1280px;
+            height: 720px;
+            max-height: 720px; 
+            background-color: #1A1A1A; /* 다크 모드 아웃라인 */
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+            border-radius: 12px;
+            overflow: hidden; 
+            position: relative;
+        }
+
+        /* 헤더 영역 (다크 테마 유지) */
+        .header-bar {
+            width: 100%;
+            background-color: #111111;
+            padding: 0 35px;
+            border-bottom: 2px solid #260401; /* Sunlight 팔레트: 가장 어두운 버건디블랙 포인트 */
+            display: flex;
+            align-items: center;
+            justify-content: space-between; 
+            height: 50px; 
+            flex-shrink: 0;
+        }
+
+        .header-title {
+            color: #BFAE99; /* Sunlight 팔레트: 라이트 탄 */
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            margin: 0;
+        }
+
+        .header-greek {
+            color: #BF964B; /* Sunlight 팔레트: 골드 (우아함 강조) */
+            font-size: 24px; 
+            font-weight: 400;
+            font-family: 'Times New Roman', serif;
+            letter-spacing: 1px;
+        }
+
+        /* 중앙 테이블 영역 (Sunlight 팔레트를 적용한 밝고 우아한 내부 그리드) */
+        .bookmark-grid {
+            background-color: #D9CDBF; 
+            margin: 10px 15px 15px 15px; /* 외부 다크모드와 분리되는 여백 (최대한 줄여서 길이 확장) */
+            height: calc(100% - 50px - 25px); /* 헤더와 여백을 제외한 공간을 길게 꽉 채움 */
+            border-radius: 10px;
+            box-shadow: inset 0 0 20px rgba(38, 4, 1, 0.15); 
+            
+            /* ★ 버그 해결 포인트: Grid 행 높이 제한을 없애고 유연한 세로 단(Flex Column) 구조로 변경 */
+            display: flex;
+            gap: 25px; 
+            padding: 18px 25px;
+        }
+
+        /* 3개의 세로 영역을 담당하는 클래스 추가 */
+        .column {
+            display: flex;
+            flex-direction: column;
+            gap: 18px; /* 상하 카테고리 간의 간격 */
+            width: calc((100% - 50px) / 3);
+        }
+
+        .category-box {
+            display: flex;
+            flex-direction: column;
+            gap: 9px;
+            /* 높이 강제 할당을 제거하여 자연스럽게 내용물이 배치되도록 함 */
+        }
+
+        .cat-title {
+            /* Sunlight 팔레트: #260401 (다크 버건디/블랙) */
+            color: #260401; 
+            font-size: 18px; 
+            font-weight: 700;
+            /* Sunlight 팔레트: #8C6751 (모카 브라운) */
+            border-bottom: 2px solid rgba(140, 103, 81, 0.4); 
+            padding-bottom: 5px;
+            margin: 0;
+            letter-spacing: -0.5px;
+            flex-shrink: 0; 
+        }
+
+        .links-wrapper {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px 6px; 
+            align-content: flex-start;
+        }
+
+        /* 미니멀 인터랙티브 버튼 (Sunlight 테마) */
+        .link-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 7px 13px;
+            /* Sunlight 팔레트: #BFAE99 (라이트 웜 그레이/탄) */
+            background-color: #BFAE99; 
+            /* Sunlight 팔레트: #260401 (버건디 블랙 텍스트) */
+            color: #260401; 
+            font-size: 14.5px; 
+            font-weight: 500;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+            user-select: none;
+            white-space: nowrap;
+            box-shadow: 0 2px 4px rgba(38, 4, 1, 0.05); /* 기본 버튼에 아주 얕은 그림자 부여 */
+        }
+
+        /* 인터랙티브 호버 효과 (떨림 현상 완전 방지) */
+        .link-btn:hover {
+            /* Sunlight 팔레트: #BF964B (골든 머스타드 포인트 컬러) */
+            background-color: #BF964B; 
+            color: #260401;
+            font-weight: 600;
+            /* 실제 레이아웃 크기는 건드리지 않고 시각적으로만 1.05배 확대하여 떨림/줄바꿈 버그 방지 */
+            transform: scale(1.05); 
+            box-shadow: 0 5px 15px rgba(191, 150, 75, 0.5);
+            z-index: 2; 
+        }
+    </style>
 </head>
 <body>
-<p class="p1"><span class="s1">&lt;!DOCTYPE html&gt;</span></p>
-<p class="p1"><span class="s1">&lt;html lang="ko"&gt;</span></p>
-<p class="p1"><span class="s1">&lt;head&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;meta charset="UTF-8"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;title&gt;IK BOOKMARK&lt;/title&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;link rel="preconnect" href="https://fonts.googleapis.com"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;link rel="preconnect" href="https://fonts.gstatic.com" crossorigin&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&amp;display=swap" rel="stylesheet"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;style&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>/* 1. THE SETUP */</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>* {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>box-sizing: border-box;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>margin: 0;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>padding: 0;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>body {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>background-color: #000000;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>display: flex;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>justify-content: center;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>align-items: center;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>height: 100vh;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>font-family: 'Noto Sans KR', sans-serif;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>overflow: hidden;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>margin: 0;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>padding: 0;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>/* Slide Container Setup - Flexible Height for Overflow Prevention */</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>.slide-container {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>width: 98vw;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>height: 96vh;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>max-width: 1400px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>background-color: #121212;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>position: relative;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>display: flex;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>flex-direction: column;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>border-radius: 12px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>overflow: hidden;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>/* Subtle Background Effects */</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>.slide-container::before {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>content: '';</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>position: absolute;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>top: -20%;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>left: -10%;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>width: 50%;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>height: 50%;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>background: radial-gradient(circle, rgba(30, 41, 59, 0.4) 0%, rgba(18, 18, 18, 0) 70%);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>z-index: 0;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>pointer-events: none;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>.slide-container::after {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>content: '';</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>position: absolute;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>bottom: -20%;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>right: -10%;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>width: 60%;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>height: 60%;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>background: radial-gradient(circle, rgba(15, 23, 42, 0.5) 0%, rgba(18, 18, 18, 0) 70%);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>z-index: 0;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>pointer-events: none;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>/* 2. TOP BAR &amp; TITLE */</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>.top-bar {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>width: 100%;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>height: 36px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>background-color: #0a0a0a;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>display: flex;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>align-items: center;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>justify-content: center;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>position: relative;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>z-index: 10;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>.title {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>color: #555555;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>font-size: 13px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>font-weight: 700;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>letter-spacing: 2px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>/* 3. DIVIDER */</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>.divider {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>width: 100%;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>height: 1px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>background: linear-gradient(90deg, #121212 0%, #3a3a3a 50%, #121212 100%);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>position: relative;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>z-index: 10;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>/* 4. MAIN CONTENT GRID (3 Columns) */</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>.bookmark-content {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>display: grid;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>grid-template-columns: repeat(3, 1fr);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>gap: 20px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>padding: 15px 30px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>flex-grow: 1;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>z-index: 10;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>position: relative;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>overflow-y: auto; /* 화면이 아주 작을 때만 내부 스크롤 허용 */</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>.column {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>display: flex;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>flex-direction: column;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>gap: 15px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>/* 5. CATEGORY &amp; LINKS */</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>.category {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>display: flex;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>flex-direction: column;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>gap: 8px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>.category h2 {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>color: #f1f5f9;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>font-size: 14px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>font-weight: 500;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>border-bottom: 1px solid #334155;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>padding-bottom: 4px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>margin: 0;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>letter-spacing: -0.3px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>.category h2 span {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>color: #64748b;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>margin-right: 6px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>font-weight: 300;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>.link-grid {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>display: grid;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>grid-template-columns: repeat(2, 1fr);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>gap: 5px 10px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>/* Interactive Buttons (Div tag to bypass iframe link hijacking) */</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>.bookmark-link {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>display: block;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>color: #94a3b8;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>font-size: 12px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>font-weight: 400;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>padding: 5px 8px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>background-color: rgba(255, 255, 255, 0.02);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>border: 1px solid rgba(255, 255, 255, 0.03);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>border-radius: 6px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>white-space: nowrap;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>overflow: hidden;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>text-overflow: ellipsis;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>cursor: pointer;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>text-align: left;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>user-select: none;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>.bookmark-link:hover {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>background-color: #1e293b;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>color: #38bdf8;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>border-color: #38bdf8;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>transform: translateY(-2px);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>/* 6. MOBILE RESPONSIVENESS */</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>@media (max-width: 1024px) {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>body {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>height: auto;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>overflow-y: auto;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>padding: 10px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>.slide-container {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>width: 100%;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>height: auto;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>min-height: 95vh;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>border-radius: 12px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>.bookmark-content {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>grid-template-columns: 1fr; /* 1열 배치 */</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>padding: 15px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>gap: 25px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>overflow-y: visible;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;/style&gt;</span></p>
-<p class="p1"><span class="s1">&lt;/head&gt;</span></p>
-<p class="p1"><span class="s1">&lt;body&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">&lt;div class="slide-container" id="slide1"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;!-- Top Bar with Title --&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;div class="top-bar"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;span class="title"&gt;IK BOOKMARK&lt;/span&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;!-- Elegant Gray Divider --&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;div class="divider"&gt;&lt;/div&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;!-- Main Content Area --&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;div class="bookmark-content"&gt;</span></p>
-<p class="p2"><span class="s1"><span class="Apple-converted-space">        </span></span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;!-- Column 1 --&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;div class="column"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>&lt;!-- Category 1 --&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>&lt;div class="category"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>&lt;h2&gt;&lt;span&gt;1.&lt;/span&gt;기독교 및 성경&lt;/h2&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>&lt;div class="link-grid"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://kr.logos.com/', '_blank', 'noopener,noreferrer')"&gt;로고스바이블&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://www.kidok.com/member/login.html?backUrl=/bbs/list.html?table=bbs_9', '_blank', 'noopener,noreferrer')"&gt;기독신문&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('http://www.holybible.or.kr/', '_blank', 'noopener,noreferrer')"&gt;홀리바이블&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://hangl.net/korbible', '_blank', 'noopener,noreferrer')"&gt;한글성경&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://bible.ctm.kr/', '_blank', 'noopener,noreferrer')"&gt;성경타자통독&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('http://www.iktinos.org/main/', '_blank', 'noopener,noreferrer')"&gt;신학정보원&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://www.csu.ac.kr/', '_blank', 'noopener,noreferrer')"&gt;대한성서공회&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://www.csu.ac.kr/', '_blank', 'noopener,noreferrer')"&gt;총신대학교&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://dongtanms.kr/faith_resources/4204', '_blank', 'noopener,noreferrer')"&gt;교독문&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://www.jupum.com/', '_blank', 'noopener,noreferrer')"&gt;주품디자인&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://ejoongang.net/xe/', '_blank', 'noopener,noreferrer')"&gt;부산중앙교회&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://www.gapck.org/', '_blank', 'noopener,noreferrer')"&gt;총회&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://blog.naver.com/lovenor', '_blank', 'noopener,noreferrer')"&gt;PN4N&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://www.billmounce.com/biblicalgreek/track1', '_blank', 'noopener,noreferrer')"&gt;헬라어공부&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://sum.su.or.kr:8888/bible/today', '_blank', 'noopener,noreferrer')"&gt;매일성경&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>&lt;!-- Category 4 --&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>&lt;div class="category"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>&lt;h2&gt;&lt;span&gt;4.&lt;/span&gt;미디어의 세계&lt;/h2&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>&lt;div class="link-grid"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://www.netflix.com/kr/', '_blank', 'noopener,noreferrer')"&gt;넥플릭스&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://www.youtube.com/', '_blank', 'noopener,noreferrer')"&gt;유튜브&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://cgv.co.kr/', '_blank', 'noopener,noreferrer')"&gt;CGV&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://www.dtryx.com/main.do?cgid=FE8EF4D2-F22D-4802-A39A-D58F23A29C1E', '_blank', 'noopener,noreferrer')"&gt;제천시네마&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://www.instagram.com/', '_blank', 'noopener,noreferrer')"&gt;인스타그램&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://only.webhard.co.kr/', '_blank', 'noopener,noreferrer')"&gt;웹하드&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://malzero.xyz/', '_blank', 'noopener,noreferrer')"&gt;멀웨어제로&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('http://speed.benchbee.co.kr/home.asp', '_blank', 'noopener,noreferrer')"&gt;인터넷속도&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://classe.ebs.co.kr/classemain', '_blank', 'noopener,noreferrer')"&gt;EBS 강의&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://kr.tabletennis-reference.com/player/ranking', '_blank', 'noopener,noreferrer')"&gt;탁구랭킹&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://bestcommentaries.com/', '_blank', 'noopener,noreferrer')"&gt;주석랭킹&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://ko.khanacademy.org/', '_blank', 'noopener,noreferrer')"&gt;Khan Academy&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://www.gmarket.co.kr/', '_blank', 'noopener,noreferrer')"&gt;미리캔버스&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>&lt;!-- Category 7 --&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>&lt;div class="category"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>&lt;h2&gt;&lt;span&gt;7.&lt;/span&gt;개인 접속&lt;/h2&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>&lt;div class="link-grid"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('http://192.168.0.10/', '_blank', 'noopener,noreferrer')"&gt;CCTV&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://192.168.0.43/', '_blank', 'noopener,noreferrer')"&gt;BeeStation&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://wfree.dimode.co.kr/saejecheon', '_blank', 'noopener,noreferrer')"&gt;디모데 SJC&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://saejecheon.com/bbs/login.php?url=https://saejecheon.com/bbs/board.php?bo_table=gallery', '_blank', 'noopener,noreferrer')"&gt;새제천교회&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;!-- Column 2 --&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;div class="column"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>&lt;!-- Category 2 --&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>&lt;div class="category"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>&lt;h2&gt;&lt;span&gt;2.&lt;/span&gt;디자인 및 영상&lt;/h2&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>&lt;div class="link-grid"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://2colors.colorion.co/', '_blank', 'noopener,noreferrer')"&gt;Two Color&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://color.adobe.com/ko/', '_blank', 'noopener,noreferrer')"&gt;Adobe Color&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://www.uigradients.com/#Dawn', '_blank', 'noopener,noreferrer')"&gt;UI gradients&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://www.remove.bg/ko', '_blank', 'noopener,noreferrer')"&gt;Remove BG&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://www.pexels.com/ko-kr/', '_blank', 'noopener,noreferrer')"&gt;Pexels&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://mixkit.co/', '_blank', 'noopener,noreferrer')"&gt;Mixkit&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://pxhere.com/', '_blank', 'noopener,noreferrer')"&gt;Pxhere&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://pngtree.com/', '_blank', 'noopener,noreferrer')"&gt;Pngtree&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://pixabay.com/ko/', '_blank', 'noopener,noreferrer')"&gt;Pixabay&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://pngtree.com/', '_blank', 'noopener,noreferrer')"&gt;Flaticon&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://en.ac-illust.com/', '_blank', 'noopener,noreferrer')"&gt;Ac-ilust&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://vfx.productioncrate.com/', '_blank', 'noopener,noreferrer')"&gt;Footage Create&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://app.immersity.ai/', '_blank', 'noopener,noreferrer')"&gt;Leia Pix&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://lottiefiles.com/', '_blank', 'noopener,noreferrer')"&gt;Lottieflies&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://www.magicpattern.design/', '_blank', 'noopener,noreferrer')"&gt;Magicpattern&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://studio.youtube.com/channel/UC3t-zvb811lELTjG2COO1Bw/music', '_blank', 'noopener,noreferrer')"&gt;오디오 도서관&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://freesound.org/', '_blank', 'noopener,noreferrer')"&gt;프리사운드&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://auphonic.com/account/login/?next=/engine/', '_blank', 'noopener,noreferrer')"&gt;Auphonic&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>&lt;!-- Category 5 --&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>&lt;div class="category"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>&lt;h2&gt;&lt;span&gt;5.&lt;/span&gt;AI 플랫폼&lt;/h2&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>&lt;div class="link-grid"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://gemini.google.com/app', '_blank', 'noopener,noreferrer')"&gt;Gemini&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://notebooklm.google.com/', '_blank', 'noopener,noreferrer')"&gt;Notebook LM&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://aistudio.google.com/prompts/new_chat', '_blank', 'noopener,noreferrer')"&gt;AI Studio&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://chatgpt.com/', '_blank', 'noopener,noreferrer')"&gt;Chat GPT&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://x.com/i/grok', '_blank', 'noopener,noreferrer')"&gt;Grok&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://felo.ai/search', '_blank', 'noopener,noreferrer')"&gt;Felo&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://claude.ai/new', '_blank', 'noopener,noreferrer')"&gt;Claude&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>&lt;!-- Category 8 --&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>&lt;div class="category"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>&lt;h2&gt;&lt;span&gt;8.&lt;/span&gt;포털 및 검색_네이버&lt;/h2&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>&lt;div class="link-grid"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://www.naver.com/', '_blank', 'noopener,noreferrer')"&gt;네이버&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://map.naver.com/p/', '_blank', 'noopener,noreferrer')"&gt;네이버 지도&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://en.dict.naver.com/#/main', '_blank', 'noopener,noreferrer')"&gt;네이버 영어사전&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://www.band.us/home', '_blank', 'noopener,noreferrer')"&gt;네이버 밴드&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://learn.dict.naver.com/conversation#/endic/20260302', '_blank', 'noopener,noreferrer')"&gt;네이버 어학당&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://papago.naver.com/', '_blank', 'noopener,noreferrer')"&gt;네이버 파파고&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://cafe.naver.com/joonggonara', '_blank', 'noopener,noreferrer')"&gt;네이버 중고나라&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;!-- Column 3 --&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;div class="column"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>&lt;!-- Category 3 --&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>&lt;div class="category"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>&lt;h2&gt;&lt;span&gt;3.&lt;/span&gt;금융 및 행정&lt;/h2&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>&lt;div class="link-grid"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://www.shinhan.com/index.jsp', '_blank', 'noopener,noreferrer')"&gt;신한은행&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://www.kbstar.com/', '_blank', 'noopener,noreferrer')"&gt;국민은행&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://banking.nonghyup.com/', '_blank', 'noopener,noreferrer')"&gt;농협은행&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://efamily.scourt.go.kr/index.jsp', '_blank', 'noopener,noreferrer')"&gt;가족관계&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://plus.gov.kr/', '_blank', 'noopener,noreferrer')"&gt;주민등록&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://www.korail.com/intro', '_blank', 'noopener,noreferrer')"&gt;코레일&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://hometax.go.kr/websquare/websquare.html?w2xPath=/ui/pp/index_pp.xml', '_blank', 'noopener,noreferrer')"&gt;홈텍스&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>&lt;!-- Category 6 --&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>&lt;div class="category"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>&lt;h2&gt;&lt;span&gt;6.&lt;/span&gt;쇼핑 및 커머스&lt;/h2&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>&lt;div class="link-grid"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://www.daum.net/', '_blank', 'noopener,noreferrer')"&gt;다음&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://www.nate.com/', '_blank', 'noopener,noreferrer')"&gt;네이트&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://www.enuri.com/', '_blank', 'noopener,noreferrer')"&gt;에누리&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://ko.aliexpress.com/', '_blank', 'noopener,noreferrer')"&gt;알리&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://www.ebay.com/', '_blank', 'noopener,noreferrer')"&gt;이베이&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://www.amazon.com/', '_blank', 'noopener,noreferrer')"&gt;아마존&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://www.yes24.com/Main/default.aspx', '_blank', 'noopener,noreferrer')"&gt;예스 24&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://www.kyobobook.co.kr/', '_blank', 'noopener,noreferrer')"&gt;교보문고&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://www.coupang.com/', '_blank', 'noopener,noreferrer')"&gt;쿠팡&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://www.halfclub.com/home', '_blank', 'noopener,noreferrer')"&gt;하프클럽&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://www.11st.co.kr/', '_blank', 'noopener,noreferrer')"&gt;11번가&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://www.gmarket.co.kr/', '_blank', 'noopener,noreferrer')"&gt;지마켓&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>&lt;!-- Category 9 --&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>&lt;div class="category"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>&lt;h2&gt;&lt;span&gt;9.&lt;/span&gt;포털 및 검색_구글&lt;/h2&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>&lt;div class="link-grid"&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://www.google.com/', '_blank', 'noopener,noreferrer')"&gt;구글&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://earth.google.com/web/', '_blank', 'noopener,noreferrer')"&gt;구글어스&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://drive.google.com/drive/my-drive', '_blank', 'noopener,noreferrer')"&gt;구글드라이브&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://docs.google.com/document/u/0/', '_blank', 'noopener,noreferrer')"&gt;구글독스&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://docs.google.com/presentation/u/0/', '_blank', 'noopener,noreferrer')"&gt;구글슬라이드&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://myaccount.google.com/find-your-phone', '_blank', 'noopener,noreferrer')"&gt;구글위치추적&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://calendar.google.com/calendar/u/0/r', '_blank', 'noopener,noreferrer')"&gt;구글 캘린더&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;div class="bookmark-link" onclick="window.open('https://chromewebstore.google.com/category/extensions?hl=ko', '_blank', 'noopener,noreferrer')"&gt;구글 웹스토어&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</span></p>
-<p class="p1"><span class="s1">&lt;/div&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1">&lt;/body&gt;</span></p>
-<p class="p1"><span class="s1">&lt;/html&gt;</span></p>
+
+    <div class="slide-container" id="slide1">
+        
+        <!-- 최상단 헤더 -->
+        <div class="header-bar">
+            <h1 class="header-title">IK BOOKMARK</h1>
+            <span class="header-greek">ἀγαπᾶτε ἀλλήλους</span>
+        </div>
+
+        <!-- 내부 테이블 영역 (세로 단 배치 및 링크 개수를 고려한 균등 재배열) -->
+        <div class="bookmark-grid">
+            
+            <!-- Column 1 (총 33개 링크: 디자인, 금융, AI) -->
+            <div class="column">
+                <div class="category-box">
+                    <h2 class="cat-title">디자인 및 영상</h2>
+                    <div class="links-wrapper">
+                        <div class="link-btn" onclick="window.open('https://2colors.colorion.co/', '_blank')">Two Color</div>
+                        <div class="link-btn" onclick="window.open('https://color.adobe.com/ko/', '_blank')">Adobe Color</div>
+                        <div class="link-btn" onclick="window.open('https://www.uigradients.com/#Dawn', '_blank')">UI gradients</div>
+                        <div class="link-btn" onclick="window.open('https://www.remove.bg/ko', '_blank')">Remove BG</div>
+                        <div class="link-btn" onclick="window.open('https://www.pexels.com/ko-kr/', '_blank')">Pexels</div>
+                        <div class="link-btn" onclick="window.open('https://mixkit.co/', '_blank')">Mixkit</div>
+                        <div class="link-btn" onclick="window.open('https://pxhere.com/', '_blank')">Pxhere</div>
+                        <div class="link-btn" onclick="window.open('https://pngtree.com/', '_blank')">Pngtree</div>
+                        <div class="link-btn" onclick="window.open('https://pixabay.com/ko/', '_blank')">Pixabay</div>
+                        <div class="link-btn" onclick="window.open('https://pngtree.com/', '_blank')">Flaticon</div>
+                        <div class="link-btn" onclick="window.open('https://en.ac-illust.com/', '_blank')">Ac-ilust</div>
+                        <div class="link-btn" onclick="window.open('https://vfx.productioncrate.com/', '_blank')">Footage Create</div>
+                        <div class="link-btn" onclick="window.open('https://app.immersity.ai/', '_blank')">Leia Pix</div>
+                        <div class="link-btn" onclick="window.open('https://lottiefiles.com/', '_blank')">Lottieflies</div>
+                        <div class="link-btn" onclick="window.open('https://www.magicpattern.design/', '_blank')">Magicpattern</div>
+                        <div class="link-btn" onclick="window.open('https://www.motionvfx.com/', '_blank')">Motionvfx</div>
+                        <div class="link-btn" onclick="window.open('https://studio.youtube.com/channel/UC3t-zvb811lELTjG2COO1Bw/music', '_blank')">오디오 도서관</div>
+                        <div class="link-btn" onclick="window.open('https://freesound.org/', '_blank')">프리사운드</div>
+                        <div class="link-btn" onclick="window.open('https://auphonic.com/account/login/?next=/engine/', '_blank')">Auphonic</div>
+                    </div>
+                </div>
+
+                <div class="category-box">
+                    <h2 class="cat-title">금융 및 행정</h2>
+                    <div class="links-wrapper">
+                        <div class="link-btn" onclick="window.open('https://www.shinhan.com/index.jsp', '_blank')">신한은행</div>
+                        <div class="link-btn" onclick="window.open('https://www.kbstar.com/', '_blank')">국민은행</div>
+                        <div class="link-btn" onclick="window.open('https://www.nhbank.com/', '_blank')">농협은행</div>
+                        <div class="link-btn" onclick="window.open('https://efamily.scourt.go.kr/index.jsp', '_blank')">가족관계</div>
+                        <div class="link-btn" onclick="window.open('https://plus.gov.kr/', '_blank')">주민등록</div>
+                        <div class="link-btn" onclick="window.open('https://www.korail.com/intro', '_blank')">코레일</div>
+                        <div class="link-btn" onclick="window.open('https://hometax.go.kr/websquare/websquare.html?w2xPath=/ui/pp/index_pp.xml', '_blank')">홈텍스</div>
+                    </div>
+                </div>
+
+                <div class="category-box">
+                    <h2 class="cat-title">AI 플랫폼</h2>
+                    <div class="links-wrapper">
+                        <div class="link-btn" onclick="window.open('https://gemini.google.com/app', '_blank')">Gemini</div>
+                        <div class="link-btn" onclick="window.open('https://notebooklm.google.com/', '_blank')">Notebook LM</div>
+                        <div class="link-btn" onclick="window.open('https://aistudio.google.com/prompts/new_chat', '_blank')">AI Studio</div>
+                        <div class="link-btn" onclick="window.open('https://chatgpt.com/', '_blank')">Chat GPT</div>
+                        <div class="link-btn" onclick="window.open('https://x.com/i/grok', '_blank')">Grok</div>
+                        <div class="link-btn" onclick="window.open('https://felo.ai/search', '_blank')">Felo</div>
+                        <div class="link-btn" onclick="window.open('https://claude.ai/new', '_blank')">Claude</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Column 2 (총 31개 링크: 기독교, 쇼핑, 개인) -->
+            <div class="column">
+                <div class="category-box">
+                    <h2 class="cat-title">기독교 및 성경</h2>
+                    <div class="links-wrapper">
+                        <div class="link-btn" onclick="window.open('https://kr.logos.com/', '_blank')">로고스바이블</div>
+                        <div class="link-btn" onclick="window.open('https://www.kidok.com/member/login.html?backUrl=/bbs/list.html?table=bbs_9', '_blank')">기독신문</div>
+                        <div class="link-btn" onclick="window.open('http://www.holybible.or.kr/', '_blank')">홀리바이블</div>
+                        <div class="link-btn" onclick="window.open('https://hangl.net/korbible', '_blank')">한글성경</div>
+                        <div class="link-btn" onclick="window.open('https://bible.ctm.kr/', '_blank')">성경타자통독</div>
+                        <div class="link-btn" onclick="window.open('http://www.iktinos.org/main/', '_blank')">신학정보원</div>
+                        <div class="link-btn" onclick="window.open('https://www.csu.ac.kr/', '_blank')">대한성서공회</div>
+                        <div class="link-btn" onclick="window.open('https://www.csu.ac.kr/', '_blank')">총신대학교</div>
+                        <div class="link-btn" onclick="window.open('https://dongtanms.kr/faith_resources/4204', '_blank')">교독문</div>
+                        <div class="link-btn" onclick="window.open('https://www.jupum.com/', '_blank')">주품디자인</div>
+                        <div class="link-btn" onclick="window.open('https://ejoongang.net/xe/', '_blank')">부산중앙교회</div>
+                        <div class="link-btn" onclick="window.open('https://www.gapck.org/', '_blank')">총회</div>
+                        <div class="link-btn" onclick="window.open('https://blog.naver.com/lovenor', '_blank')">PN4N</div>
+                        <div class="link-btn" onclick="window.open('https://www.billmounce.com/biblicalgreek/track1', '_blank')">헬라어공부</div>
+                        <div class="link-btn" onclick="window.open('https://sum.su.or.kr:8888/bible/today', '_blank')">매일성경</div>
+                    </div>
+                </div>
+
+                <div class="category-box">
+                    <h2 class="cat-title">쇼핑 및 커머스</h2>
+                    <div class="links-wrapper">
+                        <div class="link-btn" onclick="window.open('https://www.daum.net/', '_blank')">다음</div>
+                        <div class="link-btn" onclick="window.open('https://www.nate.com/', '_blank')">네이트</div>
+                        <div class="link-btn" onclick="window.open('https://www.enuri.com/', '_blank')">에누리</div>
+                        <div class="link-btn" onclick="window.open('https://ko.aliexpress.com/', '_blank')">알리</div>
+                        <div class="link-btn" onclick="window.open('https://www.ebay.com/', '_blank')">이베이</div>
+                        <div class="link-btn" onclick="window.open('https://www.amazon.com/', '_blank')">아마존</div>
+                        <div class="link-btn" onclick="window.open('https://www.yes24.com/Main/default.aspx', '_blank')">예스 24</div>
+                        <div class="link-btn" onclick="window.open('https://www.kyobobook.co.kr/', '_blank')">교보문고</div>
+                        <div class="link-btn" onclick="window.open('https://www.coupang.com/', '_blank')">쿠팡</div>
+                        <div class="link-btn" onclick="window.open('https://www.halfclub.com/home', '_blank')">하프클럽</div>
+                        <div class="link-btn" onclick="window.open('https://www.11st.co.kr/', '_blank')">11번가</div>
+                        <div class="link-btn" onclick="window.open('https://www.gmarket.co.kr/', '_blank')">지마켓</div>
+                    </div>
+                </div>
+
+                <div class="category-box">
+                    <h2 class="cat-title">개인 접속</h2>
+                    <div class="links-wrapper">
+                        <div class="link-btn" onclick="window.open('http://192.168.0.10/', '_blank')">CCTV</div>
+                        <div class="link-btn" onclick="window.open('https://192.168.0.43/', '_blank')">BeeStation</div>
+                        <div class="link-btn" onclick="window.open('https://wfree.dimode.co.kr/saejecheon', '_blank')">디모데 SJC</div>
+                        <div class="link-btn" onclick="window.open('https://saejecheon.com/bbs/login.php?url=https://saejecheon.com/bbs/board.php?bo_table=gallery', '_blank')">새제천교회</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Column 3 (총 28개 링크: 미디어, 구글, 네이버) -->
+            <div class="column">
+                <div class="category-box">
+                    <h2 class="cat-title">미디어의 세계</h2>
+                    <div class="links-wrapper">
+                        <div class="link-btn" onclick="window.open('https://www.netflix.com/kr/', '_blank')">넥플릭스</div>
+                        <div class="link-btn" onclick="window.open('https://www.youtube.com/', '_blank')">유튜브</div>
+                        <div class="link-btn" onclick="window.open('https://cgv.co.kr/', '_blank')">CGV</div>
+                        <div class="link-btn" onclick="window.open('https://www.dtryx.com/main.do?cgid=FE8EF4D2-F22D-4802-A39A-D58F23A29C1E', '_blank')">제천시네마</div>
+                        <div class="link-btn" onclick="window.open('https://www.instagram.com/', '_blank')">인스타그램</div>
+                        <div class="link-btn" onclick="window.open('https://only.webhard.co.kr/', '_blank')">웹하드</div>
+                        <div class="link-btn" onclick="window.open('https://malzero.xyz/', '_blank')">멀웨어제로</div>
+                        <div class="link-btn" onclick="window.open('http://speed.benchbee.co.kr/home.asp', '_blank')">인터넷속도</div>
+                        <div class="link-btn" onclick="window.open('https://classe.ebs.co.kr/classemain', '_blank')">EBS 강의</div>
+                        <div class="link-btn" onclick="window.open('https://kr.tabletennis-reference.com/player/ranking', '_blank')">탁구랭킹</div>
+                        <div class="link-btn" onclick="window.open('https://bestcommentaries.com/', '_blank')">주석랭킹</div>
+                        <div class="link-btn" onclick="window.open('https://ko.khanacademy.org/', '_blank')">Khan</div>
+                        <div class="link-btn" onclick="window.open('https://www.gmarket.co.kr/', '_blank')">미리캔버스</div>
+                    </div>
+                </div>
+
+                <div class="category-box">
+                    <h2 class="cat-title">포털 및 검색_구글</h2>
+                    <div class="links-wrapper">
+                        <div class="link-btn" onclick="window.open('https://www.google.com/', '_blank')">구글</div>
+                        <div class="link-btn" onclick="window.open('https://earth.google.com/web/', '_blank')">구글어스</div>
+                        <div class="link-btn" onclick="window.open('https://drive.google.com/drive/my-drive', '_blank')">구글드라이브</div>
+                        <div class="link-btn" onclick="window.open('https://docs.google.com/document/u/0/', '_blank')">구글독스</div>
+                        <div class="link-btn" onclick="window.open('https://docs.google.com/presentation/u/0/', '_blank')">구글슬라이드</div>
+                        <div class="link-btn" onclick="window.open('https://myaccount.google.com/find-your-phone', '_blank')">구글위치추적</div>
+                        <div class="link-btn" onclick="window.open('https://calendar.google.com/calendar/u/0/r', '_blank')">구글 캘린더</div>
+                        <div class="link-btn" onclick="window.open('https://chromewebstore.google.com/category/extensions?hl=ko', '_blank')">구글 웹스토어</div>
+                    </div>
+                </div>
+
+                <div class="category-box">
+                    <h2 class="cat-title">포털 및 검색_네이버</h2>
+                    <div class="links-wrapper">
+                        <div class="link-btn" onclick="window.open('https://www.naver.com/', '_blank')">네이버</div>
+                        <div class="link-btn" onclick="window.open('https://map.naver.com/p/', '_blank')">네이버 지도</div>
+                        <div class="link-btn" onclick="window.open('https://en.dict.naver.com/#/main', '_blank')">네이버 영어사전</div>
+                        <div class="link-btn" onclick="window.open('https://www.band.us/home', '_blank')">네이버 밴드</div>
+                        <div class="link-btn" onclick="window.open('https://learn.dict.naver.com/conversation#/endic/20260302', '_blank')">네이버 어학당</div>
+                        <div class="link-btn" onclick="window.open('https://papago.naver.com/', '_blank')">네이버 파파고</div>
+                        <div class="link-btn" onclick="window.open('https://cafe.naver.com/joonggonara', '_blank')">네이버 중고나라</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
 </body>
 </html>
