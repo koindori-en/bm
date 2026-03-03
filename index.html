@@ -54,7 +54,7 @@
             width: 100%;
             background-color: #111111;
             padding: 0 35px;
-            border-bottom: 2px solid #260401; /* Sunlight 팔레트: 가장 어두운 버건디블랙 포인트 */
+            border-bottom: 1px solid rgba(191, 174, 153, 0.25); /* 두 영역을 자연스럽게 잇는 은은한 베이지/브라운 톤으로 변경 */
             display: flex;
             align-items: center;
             justify-content: space-between; 
@@ -69,14 +69,6 @@
             font-weight: 700;
             letter-spacing: 2px;
             margin: 0;
-        }
-
-        .header-greek {
-            color: #BFAE99; /* 제목과 동일한 라이트 탄 색상으로 통일 */
-            font-size: 24px; 
-            font-weight: 400;
-            font-family: 'Times New Roman', serif;
-            letter-spacing: 1px;
         }
 
         /* 중앙 테이블 영역 (Sunlight 팔레트를 적용한 밝고 우아한 내부 그리드) */
@@ -109,15 +101,15 @@
         }
 
         .cat-title {
-            /* Sunlight 팔레트: #260401 (다크 버건디/블랙) */
-            color: #260401; 
-            font-size: 18px; 
-            font-weight: 700;
-            /* Sunlight 팔레트: #8C6751 (모카 브라운) */
-            border-bottom: 2px solid rgba(140, 103, 81, 0.4); 
-            padding-bottom: 5px;
+            /* 색상을 연하고 부드러운 톤으로 변경하여 눈에 거슬리지 않게 함 */
+            color: #8A6D5A; 
+            font-size: 14px; /* 크기 2단계 축소 (기존 18px -> 14px) */
+            font-weight: 600; /* 굵기 살짝 완화 */
+            /* 밑줄도 연하고 얇게 조정 */
+            border-bottom: 1px solid rgba(140, 103, 81, 0.25); 
+            padding-bottom: 4px;
             margin: 0;
-            letter-spacing: -0.5px;
+            letter-spacing: -0.2px;
             flex-shrink: 0; 
         }
 
@@ -187,18 +179,14 @@
             }
 
             .header-bar {
-                padding: 0 20px;
-                position: sticky; /* 스크롤해도 헤더는 상단에 고정되게 */
-                top: 0; 
-                box-shadow: 0 4px 10px rgba(0,0,0,0.3); /* 모바일 고정 시 그림자 추가 */
-            }
+            padding: 0 20px;
+            position: sticky; /* 스크롤해도 헤더는 상단에 고정되게 */
+            top: 0; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3); /* 모바일 고정 시 그림자 추가 */
+        }
 
-            .header-greek {
-                font-size: 18px; /* 모바일 환경에 맞춰 글꼴 사이즈 최적화 */
-            }
-
-            .bookmark-grid {
-                flex-direction: column; /* 세로 1열(Column)로 모바일 자동 배치 */
+        .bookmark-grid {
+            flex-direction: column; /* 세로 1열(Column)로 모바일 자동 배치 */
                 height: auto;
                 margin: 0; 
                 padding: 25px 20px;
@@ -236,7 +224,6 @@
         <!-- 최상단 헤더 -->
         <div class="header-bar">
             <h1 class="header-title">IK BOOKMARK</h1>
-            <span class="header-greek">ἀγαπᾶτε ἀλλήλους</span>
         </div>
 
         <!-- 내부 테이블 영역 (세로 단 배치 및 링크 개수를 고려한 균등 재배열) -->
