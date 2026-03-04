@@ -2,12 +2,13 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="color-scheme" content="light dark"> <!-- 모바일 브라우저의 강제 색상 변환 방지 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- 완벽한 다크모드 선언으로 모바일 브라우저 색상 충돌 원천 차단 -->
+    <meta name="color-scheme" content="dark">
     <title>IK BOOKMARK</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
             box-sizing: border-box;
@@ -15,19 +16,20 @@
             padding: 0;
         }
 
+        /* 깊이감 있는 프리미엄 다크 그라데이션 배경 */
         body {
-            /* 완벽한 다크 모드 유지 */
-            background-color: #121212;
-            display: flex; /* grid에서 flex로 변경하여 모바일 스크롤 정렬 문제 해결 */
+            background: linear-gradient(135deg, #0f172a 0%, #09090b 100%);
+            display: flex; 
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             font-family: 'Noto Sans KR', sans-serif;
             overflow-x: hidden;
-            overflow-y: hidden; /* 데스크톱 기본 스크롤 방지 */
+            overflow-y: hidden; 
+            -webkit-font-smoothing: antialiased; /* 텍스트 렌더링 고급화 */
         }
 
-        /* 뷰포트 비율에 맞춘 화면 스케일링 (데스크톱/태블릿) */
+        /* 뷰포트 스케일링 */
         @media (max-width: 1300px) and (min-width: 769px) {
             body {
                 transform: scale(calc(100vw / 1300));
@@ -36,186 +38,197 @@
             }
         }
 
-        /* 메인 슬라이드 캔버스 (다크 모드 베이스) */
+        /* 메인 슬라이드 캔버스 */
         .slide-container {
             width: 1280px;
             height: 720px;
             max-height: 720px; 
-            background-color: #1A1A1A; /* 다크 모드 아웃라인 */
+            /* 은은한 네이비 빛이 도는 다크 스페이스 배경 */
+            background: linear-gradient(145deg, #111827 0%, #0f172a 50%, #1e1b4b 100%);
             display: flex;
             flex-direction: column;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
-            border-radius: 12px;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.9), inset 0 1px 0 rgba(255,255,255,0.05);
+            border-radius: 16px;
             overflow: hidden; 
             position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        /* 헤더 영역 (다크 테마 유지) */
+        /* 헤더 영역 */
         .header-bar {
             width: 100%;
-            background-color: #111111;
+            background-color: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
             padding: 0 35px;
-            border-bottom: 1px solid rgba(191, 174, 153, 0.25); /* 두 영역을 자연스럽게 잇는 은은한 베이지/브라운 톤으로 변경 */
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05); 
             display: flex;
             align-items: center;
-            justify-content: space-between; 
-            height: 50px; 
+            justify-content: center; 
+            height: 52px; 
             flex-shrink: 0;
             z-index: 10;
         }
 
         .header-title {
-            color: #BFAE99; /* Sunlight 팔레트: 라이트 탄 */
+            color: #e2e8f0; 
             font-size: 15px;
             font-weight: 700;
-            letter-spacing: 2px;
+            letter-spacing: 5px; 
             margin: 0;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
         }
 
-        /* 중앙 테이블 영역 (Sunlight 팔레트를 적용한 밝고 우아한 내부 그리드) */
+        /* 중앙 테이블 영역 (배경을 투명하게 날려 미니멀리즘 강조) */
         .bookmark-grid {
-            background-color: #D9CDBF; 
-            margin: 10px 15px 15px 15px; /* 외부 다크모드와 분리되는 여백 (최대한 줄여서 길이 확장) */
-            height: calc(100% - 50px - 25px); /* 헤더와 여백을 제외한 공간을 길게 꽉 채움 */
-            border-radius: 10px;
-            box-shadow: inset 0 0 20px rgba(38, 4, 1, 0.15); 
-            
-            /* ★ 버그 해결 포인트: Grid 행 높이 제한을 없애고 유연한 세로 단(Flex Column) 구조로 변경 */
+            margin: 10px 15px 15px 15px; 
+            height: calc(100% - 52px - 25px); 
             display: flex;
             gap: 25px; 
-            padding: 18px 25px;
+            padding: 20px 30px;
         }
 
-        /* 3개의 세로 영역을 담당하는 클래스 추가 */
         .column {
             display: flex;
             flex-direction: column;
-            gap: 18px; /* 상하 카테고리 간의 간격 */
+            gap: 24px; 
             width: calc((100% - 50px) / 3);
         }
 
+        /* 카드 형식의 글래스모피즘 제거 -> 투명하고 미니멀하게 */
         .category-box {
             display: flex;
             flex-direction: column;
-            gap: 9px;
-            /* 높이 강제 할당을 제거하여 자연스럽게 내용물이 배치되도록 함 */
+            gap: 12px;
+            background: transparent; 
+            border: none;
+            box-shadow: none;
         }
 
         .cat-title {
-            /* 색상을 연하고 부드러운 톤으로 변경하여 눈에 거슬리지 않게 함 */
-            color: #8A6D5A; 
-            font-size: 14px; /* 크기 2단계 축소 (기존 18px -> 14px) */
-            font-weight: 600; /* 굵기 살짝 완화 */
-            /* 밑줄도 연하고 얇게 조정 */
-            border-bottom: 1px solid rgba(140, 103, 81, 0.25); 
-            padding-bottom: 4px;
+            color: #94a3b8; /* 세련된 실버 그레이 */
+            font-size: 14px; 
+            font-weight: 600; 
+            border-bottom: 1px solid rgba(148, 163, 184, 0.15); 
+            padding-bottom: 6px;
             margin: 0;
-            letter-spacing: -0.2px;
+            letter-spacing: 0.5px;
             flex-shrink: 0; 
         }
 
         .links-wrapper {
             display: flex;
             flex-wrap: wrap;
-            gap: 7px 6px; 
+            gap: 10px 8px; 
             align-content: flex-start;
         }
 
-        /* 미니멀 인터랙티브 버튼 (Sunlight 테마) */
+        /* ★ 버튼 전용 글래스모피즘 (유리 질감) */
         .link-btn {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            padding: 7px 13px;
-            /* Sunlight 팔레트: #BFAE99 (라이트 웜 그레이/탄) */
-            background-color: #BFAE99; 
-            /* Sunlight 팔레트: #260401 (버건디 블랙 텍스트) */
-            color: #260401; 
+            padding: 7px 14px;
+            /* 반투명한 유리 배경 */
+            background-color: rgba(255, 255, 255, 0.03); 
+            /* 배경 흐림 효과로 고급스러움 극대화 */
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            color: #cbd5e1; /* 부드러운 화이트/실버 */
             font-size: 14.5px; 
             font-weight: 500;
-            border-radius: 6px;
+            border-radius: 8px; 
             cursor: pointer;
-            /* 애플, 프리미엄 UI에서 사용하는 매우 부드러운 감속 트랜지션 적용 */
-            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            /* 테두리 두께를 미리 지정해두어 호버시 떨림 방지 */
+            border: 1px solid rgba(255, 255, 255, 0.07); 
+            
+            /* 크기는 변하지 않으면서 부드럽게 위치, 색상, 그림자만 변하는 고급 트랜지션 */
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), 
+                        background-color 0.3s ease, 
+                        color 0.3s ease, 
+                        border-color 0.3s ease,
+                        box-shadow 0.3s ease;
             user-select: none;
             white-space: nowrap;
-            box-shadow: 0 2px 4px rgba(38, 4, 1, 0.05); /* 기본 버튼에 아주 얕은 그림자 부여 */
         }
 
-        /* 인터랙티브 호버 효과 (세련되고 우아한 무빙) */
-        /* 모바일에서는 호버가 탭으로 작동하므로 유지 */
+        /* ★ 떨림 없는 프리미엄 호버 이펙트 (Glow & Levitate) */
         @media (hover: hover) {
             .link-btn:hover {
-                /* 세련된 반전 효과: 어두운 배경과 부드러운 텍스트 색상 */
-                background-color: #260401; /* 다크 버건디 블랙 배경으로 반전 */
-                color: #D9CDBF; /* 밝고 따뜻한 베이지 텍스트 */
-                font-weight: 600;
-                /* 위로 살짝 떠오르며(Lift) 아주 미세하게 커지는 고급스러운 플로팅 무빙 */
-                transform: translateY(-2.5px) scale(1.03); 
-                /* 은은하고 넓게 퍼지는 고급스러운 입체 그림자 */
-                box-shadow: 0 8px 20px rgba(38, 4, 1, 0.35);
+                /* 배경 살짝 밝게 */
+                background-color: rgba(255, 255, 255, 0.1); 
+                /* 텍스트 퓨어 화이트로 쨍하게 */
+                color: #ffffff; 
+                /* 테두리에 은은한 일루미네이션(퍼플/블루 톤) 적용 */
+                border-color: rgba(129, 140, 248, 0.5);
+                
+                /* 크기를 키우는 scale 대신, 위치만 위로 살짝 띄워 레이아웃 떨림 원천 봉쇄 */
+                transform: translateY(-3px); 
+                
+                /* 유리 버튼 아래로 퍼지는 네온 글로우 그림자 */
+                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3), 
+                            0 0 15px rgba(129, 140, 248, 0.25);
                 z-index: 2; 
             }
         }
 
         /* ========================================================
-           ★ 모바일 전용 환경 (버튼 자동 배치 & 색상 오류 완벽 해결)
+           ★ 모바일 전용 환경 (다크 스페이스 테마 연장)
            ======================================================== */
         @media (max-width: 768px) {
             body {
-                align-items: flex-start; /* 상단부터 채우기 */
-                overflow-y: auto; /* 모바일에서는 자유로운 스크롤 허용 */
-                /* 모바일 브라우저의 '강제 다크모드'가 밝은색을 칙칙하게 변환하는 것을 막기 위해 body는 원래대로 블랙 유지 */
-                background-color: #121212; 
+                align-items: flex-start; 
+                overflow-y: auto; 
+                background: #0f172a !important; /* 모바일 배경을 심리스한 다크로 통일 */
             }
 
             .slide-container {
                 width: 100%;
-                min-height: 100vh; /* 컨테이너가 모바일 화면 세로 전체를 덮도록 설정 */
+                min-height: 100vh; 
                 height: auto; 
-                max-height: none; /* 모바일에서는 1페이지 제한 해제 */
+                max-height: none; 
                 border-radius: 0;
                 box-shadow: none;
-                /* body 대신 컨테이너에 직접 베이지색을 적용하여 맑고 깨끗한 본연의 색상 유지 */
-                background-color: #D9CDBF; 
+                border: none;
+                background: linear-gradient(180deg, #111827 0%, #0f172a 100%) !important; 
                 overflow: visible;
             }
 
             .header-bar {
                 padding: 0 20px;
-                position: sticky; /* 스크롤해도 헤더는 상단에 고정되게 */
+                position: sticky; 
                 top: 0; 
-                box-shadow: 0 4px 10px rgba(0,0,0,0.15); /* 그림자 부드럽게 조정 */
+                background-color: rgba(15, 23, 42, 0.85) !important;
+                backdrop-filter: blur(12px);
+                -webkit-backdrop-filter: blur(12px);
+                box-shadow: 0 4px 20px rgba(0,0,0,0.5); 
+                border-bottom: 1px solid rgba(255, 255, 255, 0.05);
             }
 
             .bookmark-grid {
-                flex-direction: column; /* 세로 1열(Column)로 모바일 자동 배치 */
+                flex-direction: column; 
                 height: auto;
                 margin: 0; 
-                padding: 25px 20px;
-                border-radius: 0;
-                box-shadow: none;
-                background-color: transparent; 
+                padding: 25px 20px 40px 20px; 
             }
 
             .column {
-                width: 100%; /* 모바일에서는 가로를 꽉 채우도록 수정 */
-                gap: 25px; /* 카테고리 간의 여백을 넉넉하게 */
-                margin-bottom: 25px;
+                width: 100%; 
+                gap: 24px; 
+                margin-bottom: 24px;
             }
             
-            /* 마지막 column의 불필요한 하단 여백 제거 */
             .column:last-child {
                 margin-bottom: 0;
             }
 
             .links-wrapper {
-                gap: 10px 8px; /* 버튼 사이의 간격을 넓혀 터치 오작동 방지 */
+                gap: 12px 10px; /* 모바일 터치 편의성을 위해 버튼 간격 확대 */
             }
 
             .link-btn {
-                padding: 10px 16px; /* 터치하기 쉽도록 상하좌우 패딩(크기) 증가 */
+                padding: 10px 16px; 
                 font-size: 15px; 
+                background-color: rgba(255, 255, 255, 0.05); /* 모바일에서는 살짝 더 밝게 */
             }
         }
     </style>
@@ -229,7 +242,7 @@
             <h1 class="header-title">IK BOOKMARK</h1>
         </div>
 
-        <!-- 내부 테이블 영역 (세로 단 배치 및 링크 개수를 고려한 균등 재배열) -->
+        <!-- 내부 투명 미니멀 테이블 영역 -->
         <div class="bookmark-grid">
             
             <!-- Column 1 (총 33개 링크: 디자인, 금융, AI) -->
